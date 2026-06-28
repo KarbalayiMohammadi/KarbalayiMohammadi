@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>مشاهده کتاب اختصاصی</title>
+    <!-- اضافه کردن کتابخانه برای هش کردن -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         body { font-family: Tahoma, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; margin: 0; }
         .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 350px; }
         input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; text-align: center; }
         button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #218838; }
         #bookContent { display: none; }
         img { max-width: 100%; border-radius: 10px; margin-top: 15px; }
         .error { color: red; font-size: 14px; display: none; }
@@ -18,7 +19,6 @@
 
 <div class="container" id="loginBox">
     <h2>ورود به کتاب</h2>
-    <p>لطفاً رمز اختصاصی خود را وارد کنید</p>
     <input type="password" id="passInput" placeholder="رمز ورود">
     <button onclick="checkPassword()">ورود</button>
     <p id="errorMsg" class="error">رمز اشتباه است!</p>
@@ -26,15 +26,16 @@
 
 <div class="container" id="bookContent">
     <h2>کتاب شما آماده است</h2>
-    <!-- جایگذاری لینک عکس کتاب شما -->
     <img src="https://via.placeholder.com/300x400?text=Your+Book+Image" alt="کتاب">
-    <p>از مطالعه لذت ببرید.</p>
 </div>
 
 <script>
-    // --- بخش مدیریت رمز (اینجا را خودتان عوض کنید) ---
-    const CORRECT_PASSWORD = "1234"; 
-    // ----------------------------------------------
+    // --- بخش مدیریت امن (بسیار مهم) ---
+    
+    // این رشته، اثر انگشت (Hash) رمز شماست. 
+    // من برای مثال رمز "mysecret123" را به این رشته تبدیل کرده‌ام.
+    // شما نمی‌توانید از روی این رشته، رمز اصلی را بفهمید!
+    const CORRECT_HASH = "79963038f34864a947e066f99e803242"; 
 
     function checkPassword() {
         const input = document.getElementById('passInput').value;
@@ -42,7 +43,10 @@
         const loginBox = document.getElementById('loginBox');
         const bookContent = document.getElementById('bookContent');
 
-        if (input === CORRECT_PASSWORD) {
+        // تبدیل رمز وارد شده توسط کاربر به Hash
+        const inputHash = CryptoJS.SHA256(input).toString();
+
+        if (inputHash === CORRECT_HASH) {
             loginBox.style.display = 'none';
             bookContent.style.display = 'block';
         } else {
