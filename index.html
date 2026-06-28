@@ -1,14 +1,55 @@
 <!DOCTYPE html>
-<html lang="fa" directian="rtl">
+<html lang="fa" dir="rtl">
 <head>
-  <title>کربلائی محمدی</title>
-   <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <title>مشاهده کتاب اختصاصی</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 350px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; text-align: center; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #218838; }
+        #bookContent { display: none; }
+        img { max-width: 100%; border-radius: 10px; margin-top: 15px; }
+        .error { color: red; font-size: 14px; display: none; }
+    </style>
 </head>
 <body>
 
-<h1>کربلائی محمدی | KarbalayiMohammadi</h1>
-<p>شیعۀ آزاد | دانشجوی مهندسی کامپیوتر | گرافیست</p>
-  Html.html
-<a href="Html.html">کلیک کنید.</a>
+<div class="container" id="loginBox">
+    <h2>ورود به کتاب</h2>
+    <p>لطفاً رمز اختصاصی خود را وارد کنید</p>
+    <input type="password" id="passInput" placeholder="رمز ورود">
+    <button onclick="checkPassword()">ورود</button>
+    <p id="errorMsg" class="error">رمز اشتباه است!</p>
+</div>
+
+<div class="container" id="bookContent">
+    <h2>کتاب شما آماده است</h2>
+    <!-- جایگذاری لینک عکس کتاب شما -->
+    <img src="https://via.placeholder.com/300x400?text=Your+Book+Image" alt="کتاب">
+    <p>از مطالعه لذت ببرید.</p>
+</div>
+
+<script>
+    // --- بخش مدیریت رمز (اینجا را خودتان عوض کنید) ---
+    const CORRECT_PASSWORD = "user1_secret_password"; 
+    // ----------------------------------------------
+
+    function checkPassword() {
+        const input = document.getElementById('passInput').value;
+        const errorMsg = document.getElementById('errorMsg');
+        const loginBox = document.getElementById('loginBox');
+        const bookContent = document.getElementById('bookContent');
+
+        if (input === CORRECT_PASSWORD) {
+            loginBox.style.display = 'none';
+            bookContent.style.display = 'block';
+        } else {
+            errorMsg.style.display = 'block';
+        }
+    }
+</script>
+
 </body>
 </html>
