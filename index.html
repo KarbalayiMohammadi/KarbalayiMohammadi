@@ -1,109 +1,315 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>مشاهده کتاب اختصاصی</title>
-    <style>
-        body { font-family: Tahoma, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; margin: 0; }
-        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 350px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; text-align: center; }
-        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #218838; }
-        #bookContent { display: none; }
-        img { max-width: 100%; border-radius: 10px; margin-top: 15px; }
-        .error { color: red; font-size: 14px; display: none; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مدیریت پول موضوعات</title>
+  <style>
+    body {
+      font-family: Tahoma, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f4fff4, #e8f7e8);
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #166534;
+      margin-bottom: 24px;
+      font-size: 28px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #22c55e, #16a34a);
+      color: white;
+      padding: 18px 16px;
+      border-radius: 18px;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      border: 2px solid rgba(255,255,255,0.15);
+      user-select: none;
+    }
+
+    .card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 24px rgba(22, 163, 74, 0.35);
+      background: linear-gradient(145deg, #16a34a, #15803d);
+    }
+
+    .card.active {
+      outline: 4px solid #86efac;
+      box-shadow: 0 0 0 4px rgba(134, 239, 172, 0.5), 0 12px 24px rgba(22, 163, 74, 0.35);
+    }
+
+    .panel {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      border: 1px solid #dcfce7;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      color: #166534;
+      margin-bottom: 16px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .box-title {
+      color: #166534;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .money-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #d1fae5;
+      font-size: 15px;
+    }
+
+    .money-item:last-child {
+      border-bottom: none;
+    }
+
+    .total {
+      margin-top: 18px;
+      padding: 16px;
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #14532d;
+      text-align: center;
+    }
+
+    .hint {
+      color: #6b7280;
+      font-size: 14px;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 40px 10px;
+      font-size: 16px;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 22px;
+      }
+      .card {
+        font-size: 16px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>مدیریت پول موضوعات مختلف</h1>
 
-<div class="container" id="loginBox">
-    <h2>ورود به کتاب</h2>
-    <p>لطفاً رمز اختصاصی خود را وارد کنید</p>
-    <input type="password" id="passInput" placeholder="رمز ورود">
-    <button onclick="checkPassword()">ورود</button>
-    <p id="errorMsg" class="error">رمز اشتباه است!</p>
-</div>
+    <div class="cards" id="cards"></div>
 
-<div class="container" id="bookContent">
-    <h2>کتاب شما آماده است</h2>
-    <img src="https://via.placeholder.com/300x400?text=Your+Book+Image" alt="کتاب">
-    <p>از مطالعه لذت ببرید.</p>
-</div>
+    <div class="panel">
+      <h2 id="selectedTitle">جزئیات</h2>
+      <div id="details" class="empty">روی یکی از باکس‌های بالا کلیک کن تا مشخصات نمایش داده شود.</div>
+    </div>
+  </div>
 
-<script>
-    // هش جدید برای عدد 9206 با استفاده از تابع ساده‌تر (سازگار با همه جا)
-    const CORRECT_HASH = "74f330539099437f265528676951e1847375417494a33873f648889908564599"; 
+  <script>
+    // ==============================
+    // داده‌ها را شما اینجا وارد می‌کنید
+    // ==============================
+    const data = {
+      "فقیر": {
+        cash: {
+          500: 0,
+          1000: 0,
+          2000: 0,
+          5000: 0,
+          10000: 12,
+          50000: 2,
+          100000: 1,
+          200000: 0,
+          500000: 0,
+          1000000: 0
+        },
+        bank: 350000
+      },
+      "یتیم": {
+        cash: {
+          500: 5,
+          1000: 10,
+          2000: 3,
+          5000: 2,
+          10000: 0,
+          50000: 0,
+          100000: 0,
+          200000: 1,
+          500000: 0,
+          1000000: 0
+        },
+        bank: 1200000
+      },
+      "مسجد": {
+        cash: {
+          500: 0,
+          1000: 0,
+          2000: 0,
+          5000: 4,
+          10000: 6,
+          50000: 3,
+          100000: 2,
+          200000: 0,
+          500000: 1,
+          1000000: 0
+        },
+        bank: 5000000
+      },
+      "جلسه": {
+        cash: {
+          500: 20,
+          1000: 10,
+          2000: 5,
+          5000: 1,
+          10000: 0,
+          50000: 0,
+          100000: 0,
+          200000: 0,
+          500000: 0,
+          1000000: 0
+        },
+        bank: 750000
+      }
+    };
 
-    // این تابع یک نسخه شبیه‌ساز است که به پروتکل HTTPS وابسته نیست
-    // برای امنیت، از یک روش استاندارد جاوااسکریپتی استفاده می‌کنیم
-    async function simpleHash(str) {
-        // استفاده از روش قدیمی‌تر اما سازگار برای دور زدن محدودیت HTTPS
-        // در اینجا از همان منطق قبلی استفاده می‌کنیم اما با چک کردن خطا
-        try {
-            const msgUint8 = new TextEncoder().encode(str);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        } catch (e) {
-            // اگر مرورگر اجازه crypto.subtle را نداد (در HTTP)، از یک روش جایگزین استفاده کن
-            return dummyHash(str);
-        }
+    const denominations = [500, 1000, 2000, 5000, 10000, 50000, 100000, 200000, 500000, 1000000];
+
+    const cardsEl = document.getElementById("cards");
+    const detailsEl = document.getElementById("details");
+    const selectedTitleEl = document.getElementById("selectedTitle");
+
+    function formatMoney(num) {
+      return num.toLocaleString("fa-IR") + " تومان";
     }
 
-    // یک تابع هش ساده برای محیط‌هایی که HTTPS ندارند
-    function dummyHash(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; 
-        }
-        // توجه: این تابع فقط برای اینکه کد کرش نکند است. 
-        // اما چون ما می‌خواهیم 9206 را چک کنیم، از همان تابع اصلی استفاده می‌کنیم.
-        // بهترین راه این است که در گیت‌هاب حتماً از HTTPS استفاده کنی.
-        return "fallback_hash"; 
+    function calculateCashTotal(cashObj) {
+      return denominations.reduce((sum, denom) => {
+        const count = Number(cashObj[denom] || 0);
+        return sum + (denom * count);
+      }, 0);
     }
 
-    // تابع اصلی بررسی
-    async function checkPassword() {
-        const input = document.getElementById('passInput').value;
-        const errorMsg = document.getElementById('errorMsg');
-        const loginBox = document.getElementById('loginBox');
-        const bookContent = document.getElementById('bookContent');
+    function renderCards() {
+      cardsEl.innerHTML = "";
+      Object.keys(data).forEach((key, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.textContent = key;
+        card.addEventListener("click", () => {
+          document.querySelectorAll(".card").forEach(c => c.classList.remove("active"));
+          card.classList.add("active");
+          renderDetails(key);
+        });
+        cardsEl.appendChild(card);
 
-        // اگر در محیط غیر امن هستیم، این بخش را با دقت مدیریت می‌کنیم
-        // راه حل قطعی برای گیت‌هاب:
-        // گیت‌هاب همیشه HTTPS است. اگر خطا می‌گیری، احتمالاً مرورگرت در حالت "Incognito" یا "Private" است
-        // یا cache مرورگر قدیمی را نشان می‌دهد.
-        
-        try {
-            const utf8 = new TextEncoder().encode(input);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashedInput = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            if (hashedInput === CORRECT_HASH) {
-                loginBox.style.display = 'none';
-                bookContent.style.display = 'block';
-            } else {
-                errorMsg.style.display = 'block';
-            }
-        } catch (err) {
-            // اگر خطا داد، یعنی مرورگر اجازه استفاده از رمزنگاری را نمی‌دهد
-            // در این حالت، برای اینکه کاربر اذیت نشود، یک راه حل ساده‌تر می‌نویسیم:
-            if (input === "9206") {
-                loginBox.style.display = 'none';
-                bookContent.style.display = 'block';
-            } else {
-                errorMsg.style.display = 'block';
-            }
+        if (index === 0) {
+          setTimeout(() => card.click(), 0);
         }
+      });
     }
 
-    document.getElementById('passInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') checkPassword();
-    });
-</script>
+    function renderDetails(name) {
+      const item = data[name];
+      const cashTotal = calculateCashTotal(item.cash);
+      const bankTotal = Number(item.bank || 0);
+      const total = cashTotal + bankTotal;
 
+      selectedTitleEl.textContent = `مشخصات: ${name}`;
+
+      let cashHtml = denominations.map(denom => {
+        const count = Number(item.cash[denom] || 0);
+        return `
+          <div class="money-item">
+            <span>${formatMoney(denom)}</span>
+            <span>${count} عدد</span>
+          </div>
+        `;
+      }).join("");
+
+      detailsEl.className = "";
+      detailsEl.innerHTML = `
+        <div class="summary">
+          <div class="box">
+            <div class="box-title">اسکناس‌ها</div>
+            ${cashHtml}
+          </div>
+
+          <div class="box">
+            <div class="box-title">پول بانکی</div>
+            <div class="money-item">
+              <span>موجودی بانک</span>
+              <span>${formatMoney(bankTotal)}</span>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-title">جمع‌بندی</div>
+            <div class="money-item">
+              <span>مجموع پول نقد</span>
+              <span>${formatMoney(cashTotal)}</span>
+            </div>
+            <div class="money-item">
+              <span>مجموع پول بانکی</span>
+              <span>${formatMoney(bankTotal)}</span>
+            </div>
+            <div class="money-item">
+              <span>مجموع کل</span>
+              <span>${formatMoney(total)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="hint">برای هر موضوع، فقط مقدارهای داخل آبجکت data را تغییر بده.</div>
+      `;
+    }
+
+    renderCards();
+  </script>
 </body>
 </html>
