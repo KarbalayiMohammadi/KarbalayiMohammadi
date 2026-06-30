@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مدیریت مالی جامع</title>
+  <title>مدیریت پول موضوعات مختلف</title>
   <style>
     body {
       margin: 0;
@@ -26,7 +26,6 @@
       font-weight: 800;
     }
 
-    /* استایل کارت‌ها */
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -35,10 +34,11 @@
     }
 
     .card {
+      background: linear-gradient(145deg, #22c55e, #16a34a);
       color: white;
       padding: 18px 16px;
       border-radius: 18px;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
       cursor: pointer;
       transition: 0.25s ease;
       text-align: center;
@@ -47,27 +47,15 @@
       user-select: none;
     }
 
-    /* کارت مخصوص "کل" با رنگ متمایز */
-    .card.special-total {
-      background: linear-gradient(145deg, #1e293b, #0f172a); /* رنگ تیره برای متمایز شدن */
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.3);
-    }
-
-    .card.normal-topic {
-      background: linear-gradient(145deg, #22c55e, #16a34a);
-    }
-
     .card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 12px 24px rgba(22, 163, 74, 0.35);
     }
 
     .card.active {
       outline: 4px solid #86efac;
-      outline-offset: 2px;
     }
 
-    /* پنل خلاصه بالا */
     .top-summary {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -101,7 +89,6 @@
       font-size: 32px;
     }
 
-    /* پنل جزئیات */
     .panel {
       background: white;
       border-radius: 20px;
@@ -118,7 +105,7 @@
 
     .money-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 12px;
       margin-top: 16px;
     }
@@ -134,13 +121,9 @@
       font-size: 15px;
     }
 
-    /* استایل ردیف مجموع کل اسکناس‌ها در پایین */
-    .money-item.grand-total-row {
-      background: #dcfce7;
-      border: 2px solid #16a34a;
+    .money-item span:last-child {
       font-weight: bold;
-      color: #166534;
-      grid-column: 1 / -1; /* تمام عرض را بگیرد */
+      color: #14532d;
     }
 
     .sub-box {
@@ -163,16 +146,23 @@
       color: #6b7280;
       padding: 30px 10px;
     }
+
+    @media (max-width: 600px) {
+      .summary-value {
+        font-size: 24px;
+      }
+      .summary-value.total {
+        font-size: 28px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>مدیریت مالی جامع</h1>
+    <h1>مدیریت پول موضوعات مختلف</h1>
 
-    <!-- بخش کارت‌ها -->
     <div class="cards" id="cards"></div>
 
-    <!-- بخش خلاصه اعداد بالا -->
     <div class="top-summary">
       <div class="summary-box">
         <div class="summary-label">جمع کل پول نقد</div>
@@ -188,4 +178,107 @@
       </div>
     </div>
 
-    <!-- بخش جزئیات -->
+    <div class="panel">
+      <h2 id="selectedTitle">جزئیات</h2>
+      <div id="details" class="empty">روی یکی از باکس‌ها کلیک کن تا مشخصات و تعداد اسکناس‌ها نمایش داده شود.</div>
+    </div>
+  </div>
+
+  <script>
+    const denominations = [500, 1000, 2000, 5000, 10000, 50000, 100000, 200000, 500000, 1000000];
+
+    const data = {
+      "فقیر": {
+        cash: {500:0, 1000:0, 2000:0, 5000:0, 10000:12, 50000:2, 100000:1, 200000:0, 500000:0, 1000000:0},
+        bank: 350000
+      },
+      "یتیم": {
+        cash: {500:5, 1000:10, 2000:3, 5000:2, 10000:0, 50000:0, 100000:0, 200000:1, 500000:0, 1000000:0},
+        bank: 1200000
+      },
+      "مسجد": {
+        cash: {500:0, 1000:0, 2000:0, 5000:4, 10000:6, 50000:3, 100000:2, 200000:0, 500000:1, 1000000:0},
+        bank: 5000000
+      },
+      "جلسه": {
+        cash: {500:20, 1000:10, 2000:5, 5000:1, 10000:0, 50000:0, 100000:0, 200000:0, 500000:0, 1000000:0},
+        bank: 750000
+      }
+    };
+
+    const cardsEl = document.getElementById("cards");
+    const detailsEl = document.getElementById("details");
+    const selectedTitleEl = document.getElementById("selectedTitle");
+
+    function formatMoney(num) {
+      return Number(num).toLocaleString("fa-IR") + " تومان";
+    }
+
+    function calculateCashTotal(cashObj) {
+      return denominations.reduce((sum, denom) => {
+        return sum + (denom * Number(cashObj[denom] || 0));
+      }, 0);
+    }
+
+    function renderCards() {
+      cardsEl.innerHTML = "";
+      Object.keys(data).forEach((key, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.textContent = key;
+        card.addEventListener("click", () => {
+          document.querySelectorAll(".card").forEach(c => c.classList.remove("active"));
+          card.classList.add("active");
+          renderDetails(key);
+        });
+        cardsEl.appendChild(card);
+
+        if (index === 0) setTimeout(() => card.click(), 0);
+      });
+    }
+
+    function renderDetails(name) {
+      const item = data[name];
+      const cashTotal = calculateCashTotal(item.cash);
+      const bankTotal = Number(item.bank || 0);
+      const total = cashTotal + bankTotal;
+
+      selectedTitleEl.textContent = `مشخصات: ${name}`;
+
+      document.getElementById("cashTotalTop").textContent = formatMoney(cashTotal);
+      document.getElementById("bankTotalTop").textContent = formatMoney(bankTotal);
+      document.getElementById("allTotalTop").textContent = formatMoney(total);
+
+      const cashItemsHtml = denominations.map(denom => {
+        const count = Number(item.cash[denom] || 0);
+        return `
+          <div class="money-item">
+            <span>${formatMoney(denom)}</span>
+            <span>${count} عدد</span>
+          </div>
+        `;
+      }).join("");
+
+      detailsEl.className = "";
+      detailsEl.innerHTML = `
+        <div class="sub-box">
+          <div class="sub-box-title">تعداد اسکناس‌ها</div>
+          <div class="money-list">
+            ${cashItemsHtml}
+          </div>
+        </div>
+
+        <div class="sub-box">
+          <div class="sub-box-title">اطلاعات بانکی</div>
+          <div class="money-item">
+            <span>موجودی بانک</span>
+            <span>${formatMoney(bankTotal)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>
